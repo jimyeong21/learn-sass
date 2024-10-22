@@ -1,0 +1,42 @@
+@use "sass:meta";
+@use "sass:math";
+
+$nothing: null;
+$pretendard: Pretendard;
+$spoqa: "Spoqa Han Sans Neo";
+$hex: #f94e07;
+$keyword: purple;
+$color-function: hsl(18, 95%, 50%);
+$yes: true;
+$no: false;
+$units: 20px 10px 0;
+$font-families: Pretendard, Helvetica, sans-serif;
+$square-bracket: [Verdana sans-serif];
+$theme: (
+  light: (
+    forground: #121916,
+    background: #e7e6e7,
+  ),
+  dark: (
+    background: #121916,
+    forground: #e7e6e7,
+  ),
+);
+
+@function getUnit($value) {
+  @return math.unit($value);
+}
+
+$value-1: 10px;
+$value-2: 5;
+
+.container {
+  animation-delay: 9s + 21s;
+  // block-size: calc($value-1 - $value-2);
+  inline-size: $value-1 * $value-2;
+}
+
+// 단위를 제거하는 함수
+.box {
+  font-size: em(24px, 14x);
+}
