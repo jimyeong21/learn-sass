@@ -3,7 +3,21 @@
 @use "sass:math";
 @use "./variables" as *;
 
-// 가로, 세로크기를 설정하는 믹스인
+// 숨김 콘텐츠 믹스인
+@mixin a11y-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  clip: rect(0, 0, 0, 0);
+  clip-path: polygon(0 0, 0 0, 0 0);
+  overflow: hidden;
+  padding: 0;
+  white-space: nowrap;
+  border-width: 0;
+}
+
+// Size 관련 믹스인
 @mixin inline-size($value) {
   width: $value;
   inline-size: $value;
@@ -33,6 +47,31 @@
   @include size-square($size);
 }
 
+// 미디어쿼리 중단점
+$breakpoints: (
+  sm: 640,
+  md: 768,
+  lg: 1024,
+  xl: 1280,
+  2xl: 1536,
+);
+
+// 미디어쿼리 믹스인
+@mixin mq($breakpoint) {
+  @each $key, $value in $breakpoints {
+    @if not map.has-key($breakpoints, $breakpoint) {
+      @error '#{$breakpoint}는 유효한 중단점이 아닙니다.(유효한 값:sm, md, lg, xl, 2xl)';
+    }
+  }
+
+  $viewport: map.get($breakpoints, $breakpoint);
+  $query: string.unquote("min-width: #{$viewport}px");
+
+  @media ($query) {
+    @content;
+  }
+}
+
 // Rounded 스타일 믹스인
 @mixin rounded($rounded: sm) {
   @if $rounded == sm {
@@ -47,39 +86,6 @@
     border-radius: 9999px;
   } @else {
     border-radius: $rounded;
-  }
-}
-
-// gap 믹스인
-@mixin gap($spacing: base) {
-  @if $spacing == xs {
-    gap: $spacing-xs;
-  } @else if $spacing == sm {
-    gap: $spacing-sm;
-  } @else if $spacing == base {
-    gap: $spacing-base;
-  } @else if $spacing == lg {
-    gap: $spacing-lg;
-  } @else if $spacing == xl {
-    gap: $spacing-xl;
-  } @else if $spacing == 2xl {
-    gap: $spacing-2xl;
-  } @else if $spacing == 3xl {
-    gap: $spacing-3xl;
-  } @else if $spacing == 4xl {
-    gap: $spacing-4xl;
-  } @else if $spacing == 5xl {
-    gap: $spacing-5xl;
-  } @else if $spacing == 6xl {
-    gap: $spacing-6xl;
-  } @else if $spacing == 7xl {
-    gap: $spacing-7xl;
-  } @else if $spacing == 8xl {
-    gap: $spacing-8xl;
-  } @else if $spacing == 9xl {
-    gap: $spacing-9xl;
-  } @else {
-    gap: $spacing;
   }
 }
 
@@ -116,28 +122,36 @@
   }
 }
 
-// 미디어쿼리 중단점
-$breakpoints: (
-  sm: 640,
-  md: 768,
-  lg: 1024,
-  xl: 1280,
-  2xl: 1536,
-);
-
-// 미디어쿼리 믹스인
-@mixin mq($breakpoint) {
-  @each $key, $value in $breakpoints {
-    @if not map.has-key($breakpoints, $breakpoint) {
-      @error '#{$breakpoint}는 유효한 중단점이 아닙니다.(유효한 값:sm, md, lg, xl, 2xl)';
-    }
-  }
-
-  $viewport: map.get($breakpoints, $breakpoint);
-  $query: string.unquote("min-width: #{$viewport}px");
-
-  @media ($query) {
-    @content;
+// gap 믹스인
+@mixin gap($spacing: base) {
+  @if $spacing == xs {
+    gap: $spacing-xs;
+  } @else if $spacing == sm {
+    gap: $spacing-sm;
+  } @else if $spacing == base {
+    gap: $spacing-base;
+  } @else if $spacing == lg {
+    gap: $spacing-lg;
+  } @else if $spacing == xl {
+    gap: $spacing-xl;
+  } @else if $spacing == 2xl {
+    gap: $spacing-2xl;
+  } @else if $spacing == 3xl {
+    gap: $spacing-3xl;
+  } @else if $spacing == 4xl {
+    gap: $spacing-4xl;
+  } @else if $spacing == 5xl {
+    gap: $spacing-5xl;
+  } @else if $spacing == 6xl {
+    gap: $spacing-6xl;
+  } @else if $spacing == 7xl {
+    gap: $spacing-7xl;
+  } @else if $spacing == 8xl {
+    gap: $spacing-8xl;
+  } @else if $spacing == 9xl {
+    gap: $spacing-9xl;
+  } @else {
+    gap: $spacing;
   }
 }
 
@@ -153,21 +167,7 @@ $breakpoints: (
   }
 }
 
-// 숨김 콘텐츠 믹스인
-@mixin a11y-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  clip: rect(0, 0, 0, 0);
-  clip-path: polygon(0 0, 0 0, 0 0);
-  overflow: hidden;
-  padding: 0;
-  white-space: nowrap;
-  border-width: 0;
-}
-
-// flexbox 믹스인
+// FlexBox 믹스인
 @mixin flex-container($args, $mode: flex) {
   display: if($mode == flex, flex, inline-flex);
   @include flex-container-append($args);
@@ -224,7 +224,6 @@ $breakpoints: (
     }
   }
 }
-
 @function str-replace($string, $search, $replace: "") {
   $index: str-index($string, $search);
 
@@ -286,7 +285,50 @@ $breakpoints: (
     justify-content: unset;
   }
 }
+@mixin align-items($value, $mode: grid) {
+  @if $value == "normal" {
+    align-items: normal;
+  }
+  @if $value == "stretch" {
+    align-items: stretch;
+  }
 
+  @if $value == "start" {
+    align-items: if($mode == grid, start, flex-start);
+  }
+  @if $value == "end" {
+    align-items: if($mode == grid, end, flex-end);
+  }
+  @if $value == "center" {
+    align-items: center;
+  }
+
+  @if $value == "baseline" {
+    align-items: baseline;
+  }
+  @if $value == "first-baseline" {
+    align-items: first baseline;
+  }
+  @if $value == "last-baseline" {
+    align-items: last baseline;
+  }
+  @if $value == "safe" {
+    align-items: safe center;
+  }
+  @if $value == "unsafe" {
+    align-items: unsafe center;
+  }
+
+  @if $value == "inherit" {
+    align-items: inherit;
+  }
+  @if $value == "initial" {
+    align-items: initial;
+  }
+  @if $value == "unset" {
+    align-items: unset;
+  }
+}
 @mixin align-content($value, $mode: grid) {
   @if $value == "start" {
     align-content: if($mode == grid, start, flex-start);
@@ -346,5 +388,76 @@ $breakpoints: (
   }
   @if $value == "unset" {
     align-content: unset;
+  }
+}
+
+// 여백 (padding, margin)
+@mixin padding-inline-start($value) {
+  padding-left: $value;
+  padding-inline-start: $value;
+}
+@mixin padding-inline-end($value) {
+  padding-right: $value;
+  padding-inline-end: $value;
+}
+@mixin padding-block-start($value) {
+  padding-top: $value;
+  padding-block-start: $value;
+}
+@mixin padding-block-end($value) {
+  padding-bottom: $value;
+  padding-block-end: $value;
+}
+
+@mixin paddingX($paddingX) {
+  @include padding-inline-start($paddingX);
+  @include padding-inline-end($paddingX);
+}
+@mixin paddingY($paddingY) {
+  @include padding-block-start($paddingY);
+  @include padding-block-end($paddingY);
+}
+
+@mixin padding($paddingX, $paddingY: null) {
+  @include paddingX($paddingX);
+  @if $paddingY == null {
+    @include paddingY($paddingX);
+  } @else {
+    @include paddingY($paddingY);
+  }
+}
+
+@mixin margin-inline-start($value) {
+  margin-left: $value;
+  margin-inline-start: $value;
+}
+@mixin margin-inline-end($value) {
+  margin-right: $value;
+  margin-inline-end: $value;
+}
+@mixin margin-block-start($value) {
+  margin-top: $value;
+  margin-block-start: $value;
+}
+@mixin margin-block-end($value) {
+  margin-bottom: $value;
+  margin-block-end: $value;
+}
+
+@mixin marginX($marginX) {
+  @include margin-inline-start($marginX);
+  @include margin-inline-end($marginX);
+}
+@mixin marginY($marginY) {
+  @include margin-block-start($marginY);
+  @include margin-block-end($marginY);
+}
+
+@mixin margin($marginX, $marginY: null) {
+  @include marginX($marginX);
+  @if $marginY == null {
+    @include marginY($marginX);
+  } @else {
+    @include marginY($marginY);
   }
 }
