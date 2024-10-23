@@ -1,0 +1,11 @@
+@use "./../base";
+@use "./../abstract" as *;
+
+// svg 아이콘
+.svg-icon {
+  @include size(12px, 12px);
+
+  @include mq(lg) {
+    @include size-square(16);
+  }
+}
